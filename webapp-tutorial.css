@@ -1,0 +1,79 @@
+div.column {
+    display: inline-block;
+    vertical-align: top;
+    width: 100%;
+}
+
+/* override revealjs style */
+.reveal pre {
+    width: 100%;
+    margin: 0px;
+    box-shadow: none;
+}
+
+.reveal h1 {
+    font-weight: bold;
+    font-size: 90px;
+}
+
+.reveal h2 {
+    font-weight: bold;
+    font-size: 60px;
+}
+
+div.sourceCode {
+    position: relative;
+    -webkit-transition: background-color 200ms ease-out, border-color 200ms ease-out;
+    -moz-transition: background-color 200ms ease-out, border-color 200ms ease-out;
+    -o-transition: background-color 200ms ease-out, border-color 200ms ease-out;
+    transition: background-color 200ms ease-out, border-color 200ms ease-out;
+    background-color: #DAF3FB;
+    border-color: #DAF3FB;
+    border-width: 1px;
+    border-style: solid; 
+    border-radius: 15px;
+    padding: 10px;
+    margin: 10px;
+}
+
+code:not(.sourceCode):not(.plain) {
+    background-color: #DAF3FB;
+    border-radius: 8px;
+    padding: 1px;
+    margin: 0px;
+}
+
+div.sourceCode[data-small=""] {
+    font-size: 70%;
+}
+
+div.sourceCode[data-tiny=""] {
+    font-size: 50%;
+}
+
+div.sourceCode[data-runable=""]:hover,
+div.sourceCode[data-runable=""].show-runable {
+    background-color: transparent;
+    border-color: black;
+}
+
+div.sourceCode[data-runable=""] > div {
+    opacity: 0;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background-color: #DAF3FB;
+    border-radius: 12px;
+    padding: 4px 10px 1px 15px;
+    margin: 0px;
+}
+
+div.sourceCode[data-runable=""] > div::before {
+    content: "▶";
+}
+
+div.sourceCode:hover > div,
+div.sourceCode.show-runable > div {
+    opacity: 1;
+    z-index: 1;
+}
