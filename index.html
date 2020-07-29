@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="author" content="Marc Feeley">
-  <meta name="dcterms.date" content="2020-07-27">
+  <meta name="dcterms.date" content="2020-07-29">
   <title>Gambit Scheme Web App Tutorial</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -83,7 +83,7 @@
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/reveal.js@^4//dist/theme/simple.css" id="theme">
-  <link rel="stylesheet" href="webapp-tutorial.css">
+  <link rel="stylesheet" href="default.css">
   <script src="webapp-tutorial.js"></script>
 </head>
 <body>
@@ -93,7 +93,7 @@
 <section id="title-slide">
   <h1 class="title">Gambit Scheme Web App Tutorial</h1>
   <p class="author">Marc Feeley</p>
-  <p class="date">July 27, 2020</p>
+  <p class="date">July 29, 2020</p>
 </section>
 
 <section id="introduction" class="slide level2">
@@ -103,71 +103,87 @@
 <li><p>Its JS backend allows writing web apps in Scheme</p></li>
 <li><p>This slide deck has been prepared with Gambit’s JS backend, <code class="plain">pandoc</code> and <code class="plain">reveal.js</code></p></li>
 <li><p>Click on any code example to run it in your browser</p></li>
+<li><p>Slide deck sources:</p>
+<p><a href="https://github.com/udem-dlteam/webapp-tutorial" class="uri">https://github.com/udem-dlteam/webapp-tutorial</a></p></li>
 </ul>
 </section>
-<section id="hello-world-at-the-repl" class="slide level2">
-<h2>Hello world at the REPL</h2>
-<div class="sourceCode" id="cb1" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>(println <span class="st">&quot;Hello world&quot;</span>)</span></code></pre></div>
+<section id="hello-world" class="slide level2">
+<h2>Hello world</h2>
+<div class="sourceCode" id="cb1" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a>(alert <span class="st">&quot;Hello world!&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>(alert (<span class="kw">string-append</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a>         <span class="st">&quot;Hello &quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>         (prompt <span class="st">&quot;What&#39;s your name?&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>         <span class="st">&quot;!&quot;</span>))</span></code></pre></div>
 <ul>
-<li>When this code is run, the browser will display the output in a dialog box that acts as the REPL… simply press <strong>ESC</strong>, or <strong>RETURN</strong>, or click <strong>OK</strong> to dismiss the dialog</li>
+<li><p>When this code is run, the browser’s <code>alert</code> and <code>prompt</code> JS functions are called to do basic I/O through dialog boxes</p></li>
+<li><p>More elaborate interfacing to JS code is explained later in this presentation</p></li>
 </ul>
 </section>
 <section id="access-the-power-of-scheme" class="slide level2">
 <h2>Access the power of Scheme</h2>
-<ul>
-<li>Use <code>lambda</code>, lists, bignums, pretty-printing, …</li>
-</ul>
-<div class="sourceCode" id="cb2" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(fact n)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  (<span class="kw">if</span> (<span class="op">&lt;</span> n <span class="dv">2</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>      <span class="dv">1</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>      (* n (fact (<span class="op">-</span> n <span class="dv">1</span>)))))</span>
+<div class="sourceCode" id="cb2" data-runable="" data-small=""><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(fact n) (<span class="kw">if</span> (<span class="op">&lt;</span> n <span class="dv">2</span>) <span class="dv">1</span> (* n (fact (<span class="op">-</span> n <span class="dv">1</span>)))))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>(<span class="ex">define-macro</span><span class="fu"> </span>(show . body)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>  `(alert (with-output-to-string (<span class="kw">lambda</span> () ,@body))))</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>(pp (map (<span class="kw">lambda</span> (n) (<span class="kw">list</span> n (fact n))) (iota <span class="dv">6</span> <span class="dv">5</span> <span class="dv">5</span>)))</span></code></pre></div>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>(show</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a>  (pretty-print (<span class="kw">with-input-from-file</span> <span class="st">&quot;default.css&quot;</span> read-line))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>  (pretty-print (map (<span class="kw">lambda</span> (n) `((fact ,n) <span class="op">=</span> ,(fact n)))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>                     (iota <span class="dv">6</span> <span class="dv">5</span> <span class="dv">5</span>))))</span></code></pre></div>
+<ul>
+<li><p>Use <code>lambda</code>, lists, bignums, macros, files, pretty-printing, …</p></li>
+<li><p>Files are read from the web server relative to the document’s root</p></li>
+</ul>
 </section>
-<section id="tail-calls-and-first-class-continuations-too" class="slide level2">
-<h2>Tail-calls and first-class continuations too!</h2>
-<div class="sourceCode" id="cb3" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(sum n x) (<span class="kw">if</span> (<span class="op">&gt;</span> n <span class="dv">0</span>) (sum (<span class="op">-</span> n <span class="dv">1</span>) (<span class="op">+</span> n x)) x))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(map-inverse lst)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>  (<span class="kw">call/cc</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>    (<span class="kw">lambda</span> (return)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>      (map (<span class="kw">lambda</span> (x) (<span class="kw">if</span> (<span class="op">=</span> x <span class="dv">0</span>) (return &#39;error) (<span class="op">/</span> <span class="dv">1</span> x))) lst))))</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>(pp (sum <span class="dv">100000</span> <span class="dv">0</span>))</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>(pp (map-inverse &#39;(<span class="dv">1</span> <span class="dv">2</span> <span class="dv">3</span> <span class="dv">4</span> <span class="dv">5</span>)))</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a>(pp (map-inverse &#39;(<span class="dv">1</span> <span class="dv">2</span> <span class="dv">0</span> <span class="dv">4</span> <span class="dv">5</span>)))</span></code></pre></div>
+<section id="tail-calls-and-callcc-too" class="slide level2">
+<h2>Tail-calls and <code class="plain">call/cc</code> too!</h2>
+<div class="sourceCode" id="cb3" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(sum n x)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a>  (<span class="kw">if</span> (<span class="op">&gt;</span> n <span class="dv">0</span>) (sum (<span class="op">-</span> n <span class="dv">1</span>) (<span class="op">+</span> n x)) x))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(map-inverse lst)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a>  (<span class="kw">call/cc</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true"></a>    (<span class="kw">lambda</span> (return)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true"></a>      (map (<span class="kw">lambda</span> (x)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true"></a>             (<span class="kw">if</span> (<span class="op">=</span> x <span class="dv">0</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true"></a>                 (return &#39;divide-by-zero)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true"></a>                 (<span class="op">/</span> <span class="dv">1</span> x)))</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true"></a>           lst))))</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true"></a>(alert (<span class="kw">list</span> (sum <span class="dv">100000</span> <span class="dv">0</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true"></a>             (map-inverse &#39;(<span class="dv">1</span> <span class="dv">2</span> <span class="dv">3</span> <span class="dv">4</span> <span class="dv">5</span>))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true"></a>             (map-inverse &#39;(<span class="dv">1</span> <span class="dv">2</span> <span class="dv">0</span> <span class="dv">4</span> <span class="dv">5</span>))))</span></code></pre></div>
 </section>
 <section id="debugging-with-the-repl" class="slide level2">
 <h2>Debugging with the REPL</h2>
-<div class="sourceCode" id="cb4" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(fibs n a b)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>  (<span class="kw">if</span> (<span class="op">=</span> n <span class="dv">0</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>      nil  <span class="co">;; exception &quot;Unbound variable: nil&quot;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>      (<span class="kw">cons</span> a (fibs (<span class="op">-</span> n <span class="dv">1</span>) b (<span class="op">+</span> a b)))))</span>
+<div class="sourceCode" id="cb4" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(fibs a b)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a>  (<span class="kw">if</span> (<span class="op">&lt;</span> b <span class="dv">2</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a>      (<span class="kw">cons</span> a (fibs b (<span class="op">+</span> a b)))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a>      nil))  <span class="co">;; exception &quot;Unbound variable: nil&quot;</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>(pp (fibs <span class="dv">4</span> <span class="dv">0</span> <span class="dv">1</span>))</span></code></pre></div>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a>(alert (fibs <span class="dv">0</span> <span class="dv">1</span>))</span></code></pre></div>
 <ul>
 <li><p>Uncaught Scheme exceptions will start a REPL</p></li>
-<li><p>Type <code>,e</code> for the variable bindings</p></li>
-<li><p>Type <code>,b</code> for a backtrace or <code>,be</code> for a backtrace with variable bindings</p></li>
+<li><p>Type <code>,e</code> for the variable bindings, <code>,b</code> for a backtrace or <code>,be</code> for a backtrace with variable bindings</p></li>
 <li><p>Type <code>,q</code> or <code>(exit)</code> or <strong>ESC</strong> twice to leave the REPL</p></li>
+<li><p>Type <code>,(c '())</code> to continue execution with <code>'()</code> result</p></li>
 </ul>
 </section>
 <section id="simple-interfacing-to-js" class="slide level2">
 <h2>Simple Interfacing to JS</h2>
-<div class="sourceCode" id="cb5" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>(host-exec <span class="st">&quot;alert(&#39;hello from JS&#39;);&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a>(host-exec <span class="st">&quot;alert(&#39;location=&#39;+window.location);&quot;</span>)</span></code></pre></div>
 <ul>
 <li><p>The <code>host-exec</code> special form allows executing JS statements, here a call to the <code>alert</code> function</p></li>
 <li><p>The <code>host-exec</code> special form returns the void object</p></li>
-<li><p>The similar <code>host-eval</code> special form allows executing JS expressions (that have a result), as shown in the next example</p></li>
+<li><p>The similar <code>host-eval</code> special form allows executing JS expressions (that have a result), as shown in the next slide</p></li>
 </ul>
 </section>
 <section id="passing-values-from-js-to-scheme" class="slide level2">
 <h2>Passing Values from JS to Scheme</h2>
-<div class="sourceCode" id="cb6" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(Date) (host-eval <span class="st">&quot;g_host2scm(Date().toString())&quot;</span>))</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>(pp (Date))</span></code></pre></div>
+<div class="sourceCode" id="cb6" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(Date)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>  (host-eval <span class="st">&quot;g_host2scm(Date().toString())&quot;</span>))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>(alert (Date))</span></code></pre></div>
 <ul>
 <li><p>The date as a JS string is converted to a Scheme string by the call <code>g_host2scm(&lt;js_value&gt;)</code></p></li>
 <li><p><code>g_host2scm</code> converts simple values including JS booleans, numbers, strings, arrays and functions</p></li>
@@ -176,10 +192,11 @@
 <section id="passing-values-from-scheme-to-js" class="slide level2">
 <h2>Passing Values from Scheme to JS</h2>
 <div class="sourceCode" id="cb7" data-runable=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(clz32 n)  <span class="co">;; &quot;Count leading zeroes&quot;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>  (host-eval <span class="st">&quot;g_host2scm(Math.clz32(g_scm2host(@1@)))&quot;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>             n))</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a>(pp (map clz32 &#39;(<span class="dv">0</span> <span class="dv">1</span> <span class="dv">2</span> <span class="dv">3</span> <span class="dv">4</span> <span class="dv">5</span> <span class="dv">6</span> <span class="dv">7</span>)))</span></code></pre></div>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>  (host-eval</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true"></a>    <span class="st">&quot;g_host2scm(Math.clz32(g_scm2host(@1@)))&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true"></a>    n))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true"></a>(alert (map clz32 &#39;(<span class="dv">0</span> <span class="dv">1</span> <span class="dv">2</span> <span class="dv">3</span> <span class="dv">4</span> <span class="dv">5</span> <span class="dv">6</span> <span class="dv">7</span>)))</span></code></pre></div>
 <ul>
 <li><p><code>g_scm2host(&lt;scm_value&gt;)</code> converts simple Scheme values to their JS representation</p></li>
 <li><p><code>@1@</code> is replaced by the second <code>host-eval</code> parameter, <code>@2@</code> by the third, etc</p></li>
@@ -187,30 +204,46 @@
 </section>
 <section id="exporting-scheme-procedures-to-js" class="slide level2">
 <h2>Exporting Scheme Procedures to JS</h2>
-<div class="sourceCode" id="cb8" data-runable="" data-small=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(background-set! id color)</span>
+<div class="sourceCode" id="cb8" data-runable="" data-tiny=""><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(background-set! id color)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a>  (host-exec</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>   <span class="st">&quot;var c = g_scm2host(@2@);</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="st">    document.getElementById(g_scm2host(@1@)).style.background = c;&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a>   <span class="st">&quot;var c = g_scm2host(@2@);  // convert Scheme string to JS</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="st">    document.querySelector(g_scm2host(@1@)).style.background = c;&quot;</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a>   id</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true"></a>   color))</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true"></a></span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true"></a>(<span class="ex">define</span><span class="fu"> </span>(addEventListener type thunk)</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true"></a>  (host-exec</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a>   <span class="st">&quot;var f = g_scm2host(@2@);</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a><span class="st">    document.addEventListener(g_scm2host(@1@),function () { f(); });&quot;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true"></a>   <span class="st">&quot;var t = g_scm2host(@2@);  // convert Scheme procedure to JS</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true"></a><span class="st">    document.addEventListener(g_scm2host(@1@),function () { t(); });&quot;</span></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true"></a>   type</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true"></a>   thunk))</span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true"></a></span>
 <span id="cb8-15"><a href="#cb8-15" aria-hidden="true"></a>(addEventListener <span class="st">&quot;dblclick&quot;</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true"></a>                  (<span class="kw">let</span> ((state <span class="dv">#f</span>))</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true"></a>                  (<span class="kw">let</span> ((white-bg <span class="dv">#t</span>))</span>
 <span id="cb8-17"><a href="#cb8-17" aria-hidden="true"></a>                    (<span class="kw">lambda</span> ()</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true"></a>                      (set! state (<span class="kw">not</span> state))</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true"></a>                      (set! white-bg (<span class="kw">not</span> white-bg))</span>
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true"></a>                      (background-set!</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true"></a>                       <span class="st">&quot;exporting-scheme-procedures-to-js&quot;</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true"></a>                       (<span class="kw">if</span> state <span class="st">&quot;lightgreen&quot;</span> <span class="st">&quot;white&quot;</span>)))))</span></code></pre></div>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true"></a>                       <span class="st">&quot;#exporting-scheme-procedures-to-js&quot;</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true"></a>                       (<span class="kw">if</span> white-bg <span class="st">&quot;white&quot;</span> <span class="st">&quot;lightgreen&quot;</span>)))))</span></code></pre></div>
 <ul>
 <li>After running this code, double click events will toggle the background color of this slide</li>
 </ul>
+</section>
+<section id="your-turn" class="slide level2">
+<h2>Your Turn!</h2>
+<div class="sourceCode" id="cb9" data-runable="" contenteditable="true" style="height: 500px"><pre class="sourceCode scm"><code class="sourceCode scheme"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="co">;; enter Scheme code here, then click run button</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a> </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a> </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a> </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a> </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a> </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a> </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>  </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a><span class="co">;; if you&#39;d rather use the Gambit REPL directly,</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a><span class="co">;; uncomment the next line and click run button</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a><span class="co">;; (##repl-debug-main)</span></span></code></pre></div>
 </section>
     </div>
   </div>

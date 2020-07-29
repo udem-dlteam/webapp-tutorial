@@ -4,7 +4,7 @@
 all: webapp-tutorial.js index.html
 
 .md.html: webapp-tutorial.js webapp-tutorial.css
-	echo "<link rel=\"stylesheet\" href=\"webapp-tutorial.css\">" > webapp-tutorial.temp
+	echo "<link rel=\"stylesheet\" href=\"default.css\">" > webapp-tutorial.temp
 	echo "<script src=\"webapp-tutorial.js\"></script>" >> webapp-tutorial.temp
 	pandoc +RTS -M512M -K128M -RTS -H webapp-tutorial.temp -f markdown -t revealjs -V theme:simple --standalone -o $*.html $*.md
 	rm -f webapp-tutorial.temp

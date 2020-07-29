@@ -8,8 +8,17 @@
   ;; (##repl-debug-main)
 )
 
-(define (alert x)
-  (##inline-host-expression "alert(g_scm2host(@1@))" x))
+(define (alert msg)
+  (##inline-host-statement "alert(g_scm2host(@1@))"
+                           (if (string? msg)
+                               msg
+                               (object->string msg))))
+
+(define (prompt msg)
+  (##inline-host-expression "g_host2scm(prompt(g_scm2host(@1@)))"
+                            (if (string? msg)
+                                msg
+                                (object->string msg))))
 
 (define (document.getElementById id)
   (##inline-host-expression "g_host2foreign(document.getElementById(g_scm2host(@1@)))" id))
@@ -20,9 +29,8 @@
 (define (sourceCodeRun id)
   (let* ((elem (document.getElementById id))
          (code (Element.innerText-ref elem)))
-    (let* ((expr (cons '##begin (with-input-from-string code read-all)))
-           (result (eval expr)))
-      (read-line)))) ;; show the console with output
+    (let ((expr (cons '##begin (with-input-from-string code read-all))))
+      (eval expr))))
 
 ;; redirect I/O to console
 
@@ -56,6 +64,11 @@ g_DOMContentLoaded = function () { alert('DOMContentLoaded'); };
 g_sourceCodeRun = function () { alert('sourceCodeRun'); };
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    var cfg = Reveal.getConfig();
+
+    Reveal.getConfig().center = false;
+
     document.querySelectorAll('div.sourceCode').forEach(function (elem) {
         var button = document.createElement('div');
         elem.prepend(button);
@@ -67,7 +80,9 @@ document.addEventListener('DOMContentLoaded', function () {
             g_sourceCodeRun(elem.id);
         });
     });
+
   g_DOMContentLoaded();
+
 });
 
 end-of-inline-host-declaration
