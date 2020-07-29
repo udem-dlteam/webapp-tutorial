@@ -13,7 +13,7 @@ all: webapp-tutorial.js index.html
 	@echo "git push"
 
 .scm.js:
-	@if ../../../gsc/gsc -:=../../.. -target js -o $*.js -exe $*.scm; then \
+	@if gsc -target js -o $*.js -exe $*.scm; then \
 	  echo "###### compilation of $*.scm to $*.js succeeded"; \
 	else \
 	  echo "###### compilation of $*.scm to $*.js failed"; \
